@@ -1,0 +1,228 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: inline
+---
+
+Introduction (20 points)
+
+# 5 points for specific, measurable, and clear scientific question
+
+Is there a significant difference between the DNA binding domain of P53 genes of humans and the P53 DNA binding domains of other primates, and how do changes to P53 result in changes to the lifespan and health of different species?
+
+# 5 points for background on the protein/gene/species of interest and where the data is sourced from
+
+P53 is a well-known tumor suppressor, often cited as the most important gene in the inhibition of cancer development. There have been many studies of now only how P53 can help prevent the onset of cancer, but as to the effects of P53 on the overall health of species, including effects on lifespan (Bartas, 2021). The DNA-binding domain (DBD) of P53 is one of the most important parts of P53, and is the most mutated area of P53 in cancers (Baugh, 2018). P53's DBD has slight changes in many different species, which produce significant changes in their lifespans (Bartas, 2021). 
+
+Bartas paper: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8395165/
+Baugh paper: 
+https://www.nature.com/articles/cdd2017180#:~:text=The%20mutations%20located%20in%20the,in%20the%20full%20length%20protein).
+
+# 5 points for clear, specific, and measurable scientific hypothesis that is in the form of an if-then statement
+
+This leads me to my scientific hypothesis for this experiment: If the human P53 gene is unique in protecting the human body from developing cancer as a tumor suppressor, then because the P53 gene exists in other primates, they should all have similar characteristics to one another, whether that be through sequence or structure. Additionally, if P53 has any effects on health, then longer lifespans and can be used as an indicator for the effectiveness of different P53 DNA binding domains on overall health. 
+
+# 5 points for description of what analyses were done and how the data was downloaded for the project
+
+I use multiple sequence alignment to compare the sequences between multiple species' P53 gene to see the differences between them. Multiple sequence alignment would be the best technique for this because it can take multiple sequences and display all of their sequences at once and show the overall trends, as well as differences between the species.
+
+I also plan to utilize homology modeling and structural bioinformatics to get a more comprehensive view of the overall structure of the sequences to gain a better understanding of the shape that each P53 gene takes. I hope to be able to gain insight on seeing the DNA binding domain of each of these structures and understanding what may cause mutations, as well as which species may be more susceptible to mutations in P53. 
+
+Prior to running the MSA, we needed to create a fasta file with 9 different primate sequences. I sourced UniProt to get 9 different common primate species, and I will list them below: 
+1. P04637|P53_HUMAN Cellular tumor antigen p53 OS=Homo sapiens OX=9606 GN=TP53 PE=1 SV=4
+https://www.uniprot.org/uniprot/P04637
+2. P56423|P53_MACFA Cellular tumor antigen p53 OS=Macaca fascicularis OX=9541 GN=TP53 PE=2 SV=2
+https://www.uniprot.org/uniprot/P56423
+3. P61260|P53_MACFU Cellular tumor antigen p53 OS=Macaca fuscata fuscata OX=9543 GN=TP53 PE=2 SV=1
+https://www.uniprot.org/uniprot/P61260
+4. P13481|P53_CHLAE Cellular tumor antigen p53 OS=Chlorocebus aethiops OX=9534 GN=TP53 PE=1 SV=1
+https://www.uniprot.org/uniprot/P13481
+5. A0A2I2Y7Z8|A0A2I2Y7Z8_GORGO Cellular tumor antigen p53 OS=Gorilla gorilla gorilla OX=9595 PE=3 SV=1
+https://www.uniprot.org/uniprot/A0A2I2Y7Z8
+6. H2QC53|H2QC53_PANTR Cellular tumor antigen p53 OS=Pan troglodytes OX=9598 GN=TP53 PE=2 SV=1
+https://www.uniprot.org/uniprot/H2QC53
+7. H2NSL2|H2NSL2_PONAB Cellular tumor antigen p53 OS=Pongo abelii OX=9601 GN=TP53 PE=3 SV=2
+https://www.uniprot.org/uniprot/H2NSL2
+8. A0A8B7H7E6|A0A8B7H7E6_MICMU Cellular tumor antigen p53 OS=Microcebus murinus OX=30608 GN=TP53 PE=3 SV=1
+https://www.uniprot.org/uniprot/A0A8B7H7E6
+9. A0A096P2R8|A0A096P2R8_PAPAN Cellular tumor antigen p53 OS=Papio anubis OX=9555 GN=TP53 PE=3 SV=1
+https://www.uniprot.org/uniprot/A0A096P2R8
+
+Loading in Packages (15 points)
+
+# 10 points for definition of each of the packages loaded 
+
+1. BioConductor
+    Used to access many different packages to allow for data analysis
+2. Biostrings
+    Used to manipulate large biological sets of sequences
+3. seqinr
+    Used for data analysis and data visualization for biological sequences data. 
+4. msa
+    An R package for multiple sequence alignment
+5. muscle
+    A package used to perform multiple sequence alignment of nucleotide or amino acid sequences, as well as other internal functions
+6. Bio3D
+    A package that allows for the analysis of protein structure, sequence, and trajectory data. 
+7. ggmsa
+    A package used for visual exploration of multiple sequence alignment.
+8. pheatmap
+    A package used for the plotting and maniuplation of heatmaps. 
+9. ape
+    A package used for functions that allow for the reading, writing, plotting, and manipulation of phylogenetic trees.
+10. bio3d-view
+    Allows for the visualization of 3D biomolecular strucutre viewing in R. 
+11. rgl
+    Allows for differnt functions that can be used on 3D interactive graphics. 
+    
+```{r}
+# BiocManager::install("Biostrings")
+# BiocManager::install("seqinr")
+# BiocManager::install("msa")
+# BiocManager::install("muscle")
+# BiocManager::install("Bio3D")
+# BiocManager::install("ggmsa")
+# BiocManager::install("pheatmap")
+# BiocManager::install("ape")
+# devtools::install_bitbucket("Grantlab/bio3d-view")
+# install.packages("rgl")
+```
+
+```{r}
+library(Biostrings)
+library(seqinr)
+library(msa)
+library(muscle)
+library(bio3d)
+library(ggmsa)
+library(pheatmap)
+library(ape)
+library(rgl)
+library("bio3d.view")
+```
+
+Performing Bioinformatics Analysis (20 points)
+
+# 5 points for a description each of the bioinformatics method that includes data types read in and how the method works. 
+
+```{r}
+# Multiple Sequence Alignment
+
+# First we assign our fasta file which includes TP53 sequences from 9 different primates, and read it into the variable "Primates"
+Primates <- readAAStringSet("primates.fasta")
+# Check to see if the sequences were read in
+Primates
+# Perform MSA on the alignment, assign to the variable "FirstAlignment"
+FirstAlignment <- msa(Primates)
+# Check to see if the MSA was executed properly
+FirstAlignment
+#Perform MSA on the known DNA Binding Domain location (AA Sequences 102-292), broken into 4 groups for visibility purposes through the ggmsa() function. 
+ggmsa(Primates, start = 102, end = 150)
+ggmsa(Primates, start = 151, end = 199) 
+ggmsa(Primates, start = 200, end = 248) 
+ggmsa(Primates, start = 249, end = 292) 
+```
+
+```{r}
+# Homology Modeling and Structural Bioinformatics
+
+# In this section, I intended to read in pdb files for all the TP53 Proteins, and then view 3D structure of each protein
+
+# I tried to utilize https://www.rcsb.org/#Category-search, as well as https://alphafold.ebi.ac.uk/ in order to find the PBD files of each of my UniProt Accession Numbers, but I was unable to do so.
+
+# I intended to use code sourced from http://thegrantlab.org/bio3d_v2/html/index.html to produce my structures, as done in Challenge Problem #7. The code would run similarly to: 
+
+# Access the pdb file with the read.pbd() function: 
+
+    # pdb_human <- read.pdb("human.pdb")
+
+# Repeat this step for all 9 structures
+
+# The next step would be to view the 3D structure of each protein with:
+
+    # view.pdb(pdb_human, "overview", col="sse")
+
+# This will allow for the viewing of the structures, however, the D structures could not be output in the R markdown file because they had a special file format, so a screenshot image of each output structure would be included below for each protein.
+```
+
+# 5 points for code working correctly
+
+# 5 points for adequate commenting in the code and code checks 
+
+# 5 points for a function written that performs some part of the bioinformatics analyses
+
+Plotting The Results (15 points)
+
+# 5 points for description of data analysis method
+
+```{r}
+# Phylogenetic Trees
+
+# I sourced code from https://bioconductor.org/packages/devel/bioc/vignettes/msa/inst/doc/msa.pdf to produce this phylogenetic clustering. 
+
+# First we convert the MSA of Primates to be utilized by the seqinr package through the msaConvert() function. 
+PrimatePylogenetics <- msaConvert(FirstAlignment, type="seqinr::alignment")
+# Then we create a distance matrix with the dist.alignment() function from the seqinr package
+d <- dist.alignment(PrimatePylogenetics, "identity")
+as.matrix(d)[1:9, drop=FALSE]
+# We use the "ape" package to generate phylogenetic trees
+library(ape)
+# We can create the phylogenetic tree of the Primates through the nj() function of the ape package
+PrimateTree <- nj(d)
+# Now we plot our results.
+plot(PrimateTree, main="Phylogenetic Tree of Primate Sequences")
+
+```
+
+```{r}
+# Heatmaps
+
+# I attempted to source code from https://stackoverflow.com/questions/62070971/how-can-i-plot-consensus-sequences-as-a-binary-heatmap-in-r to generate my heatplot, but I was unable to do so. This is the code that I would have utilized: 
+
+#First we would read in the alignment:
+
+#protein_sequences <- system.file("extdata", "primates.fasta", package = "ggmsa")
+#aln = readAAMultipleAlignment(protein_sequences)
+#ggmsa(protein_sequences, start = 265, end = 300) 
+
+# From there, we would set a reference as a first sequence.
+
+#aln = unmasked(aln)
+#names(aln)[1]
+
+#ref = aln[1]
+
+# Next, we would iterate through the sequence and make the binary in which the sequences are the same as the reference.
+
+#bm = sapply(1:length(aln),function(i){
+#as.numeric(as.matrix(aln[i])==as.matrix(ref))
+#})
+
+#bm = t(bm)
+#rownames(bm) = names(aln)
+
+# Lastly, we would plot the heatmap with the pheatmap() function. 
+
+#pheatmap(bm[nrow(bm):1, 1:9],cluster_rows=FALSE,cluster_cols=FALSE)
+```
+
+# 5 points for the code working for data analysis method
+
+# 5 points for adequate commenting in the code for the data analysis method
+
+Analyzing the Results (15 points)
+
+# 15 points for correctly analyzing the data
+
+From what can be observed, we can tell that most of the sequences are very similar to each other, while the gorilla sequence A0A2I2Y7Z8|A0A2I2Y7Z8_GORGO Cellular tumor antigen p53 OS=Gorilla appears to be the most unique, and it has the least similarity to the rest of the primates. The sequence for the A0A8B7H7E6|A0A8B7H7E6_MICMU Cellular tumor antigen p53 OS=Microcebus murinus is also more unique compared to the rest of the sequences. This was determined through the use of multiple sequence alignment, and is supported through the phylogenetic tree that is formed in the data analysis section. Upon an initial glance at the results, there does not appear to be much of a correlation between lifespan and the amino acid sequence of the DNA binding domain of P53, as humans and gorillas have the 2 longest lifespans of the list, while having significantly different sequences. However, with further research and more specific bioinformatic methods, there may be a way to determine the correlation between lifespan and P53 DNA-binding domain sequence. 
+
+Code Formatting Requirements (15 points)
+
+# 5 points for comments identifying global variables and local variables with in depth explanations of each
+
+# 5 points for use of a built-in Bioconductor or Biopython function (or some other tool that was discussed in class like NumPy or SciPy), and description of what the function reads in and what it returns. 
+
+# 5 points for hard-coding/redundant code being absent. 
